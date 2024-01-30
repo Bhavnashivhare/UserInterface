@@ -1,0 +1,39 @@
+from django.shortcuts import render
+from . import Pool
+from . import PoolDict
+
+
+def UserInterface(request):
+    return render(request,"UserInterface.html")
+
+def Submit(request):
+    try:
+        db, cmd = Pool.ConnectionPool()
+
+        id = request.POST['ID']
+        image= request.POST['Image']
+        name= request.POST['Name']
+        
+        description= request.POST['Descrption']
+
+        q="insert into user (id,image,name,descrption) values('{0}','{1}','{2}','{3}')".format(id,image,name,description)
+        print(q)
+        cmd.execute(q)
+        db.commit()
+        db.close()
+        return render(request, "EmployeeInterface.html", {'msg': 'Record Successfully Submitted'})
+    except Exception as e:
+        print("Error:", e)
+        return render(request, "EmployeeInterface.html", {'msg': 'Fail to Submit Record'})
+
+def DisplayAll(request):
+    try:
+        db,cmd=Pool.ConnectionPool()
+        q="select * from user"
+        cmd.execute(q)
+        rows=cmd.fetchall()
+        db.close()
+        return render(request,"DisplayAll.html",{'rows':rows})
+    except Exception as e:
+        return render(request, "DisplayAll.html", {'rows':[]})
+
